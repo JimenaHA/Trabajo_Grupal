@@ -1,0 +1,282 @@
+---
+title: "Trabajo de Estadística para el análisis político 2"
+output: html_document
+date: '2022-06-09'
+nombre: 'Jimena Andrea Herrera Araujo'
+
+---
+## Variables escogidas
+
+**Variables independientes:**
+
+Acceso a servicios básicos de saneamiento de agua
+
+Gasto en salud pública 
+
+**Variable dependiente:**
+
+Tasa de anemia infantil
+
+
+## Justificación de elección de variables
+
+
+La anemia es una problemática globalizada que, a largo plazo, puede causar lesiones en organis vitales. Esta situación es increiblemente preocupante, más aún cuando se trata de anemia en niños. En este sentido, he escogido dos variables que, en teoría, son factores contribuyentes a la propagación de la anemia, la primera, el acceso a servicios básicos de agua, y por lo tanto agua potable, y la segunda, el gasto público guvernamental en salúd, y evaluaré estas variables a nivel de países, en función de su relación con la propagación de la anemia
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(readr
+      )
+```
+## Paso 1
+
+Importamos y limpiamos las bases de datos de las variables
+
+#### Data de gasto público en salúd
+
+```{r}
+Health_EXP <- read_csv("~/PUCP/2022-1/Estadística 2/TRABAJO GRUPAL/baeadff4-2702-47f0-80eb-bbebdcb9ffb1_Data.csv")
+View(Health_EXP)
+```
+
+```{r}
+Health_EXP=Health_EXP[-c(218:222),-c(1:2)]
+
+```
+```{r}
+Health_EXP[Health_EXP ==  ".." ] = NA
+```
+
+```{r}
+colnames(Health_EXP) = c("PAÍS","CÓDIGOS PAÍS","NUM")
+Health_EXP$NUM=as.numeric(Health_EXP$NUM)
+```
+
+#### Data de acceso a Servicios básicos de sanidad de agua
+
+```{r}
+PER_SERV_BAS <- read_csv("~/PUCP/2022-1/Estadística 2/TRABAJO GRUPAL/b3fd7bbd-0eb4-42e6-9291-30f89fba588f_Data.csv")
+View(PER_SERV_BAS)
+
+```
+
+```{r}
+PER_SERV_BAS=PER_SERV_BAS[-c(218:271),-c(3:4)]
+```
+
+```{r}
+PER_SERV_BAS[PER_SERV_BAS ==  ".." ] = NA
+```
+
+```{r}
+colnames(PER_SERV_BAS) = c("PAÍS","CÓDIGOS PAÍS","NUM")
+PER_SERV_BAS$NUM=as.numeric(PER_SERV_BAS$NUM)
+```
+
+#### Data de índice de Anemia infantil
+
+```{r}
+ANEM <- read_csv("~/PUCP/2022-1/Estadística 2/TRABAJO GRUPAL/76e55a3b-7aca-4ccf-acf6-2e33b7096dad_Data.csv")
+View(ANEM)
+```
+```{r}
+ANEM=ANEM[-c(2,3,10,40,43,63:66,75:79,83,101,102,106,108:111,132:135,137,144:146,160:163,180,184,185,187,188,198,199,217,221,222,230:232,255,263,267:271),-c(1:2)]
+```
+```{r}
+ANEM[ANEM ==  ".." ] = NA
+
+```
+```{r}
+colnames(ANEM) = c("PAÍS","CÓDIGOS PAÍS","NUM")
+ANEM$NUM=as.numeric(ANEM$NUM)
+```
+
+#### Organizamos la data en una sóla base de datos
+
+```{r}
+DataTot=merge(Health_EXP,PER_SERV_BAS,by=c("PAÍS","CÓDIGOS PAÍS"))
+DataTot=merge(DataTot,ANEM,by=c("PAÍS","CÓDIGOS PAÍS"))
+```
+
+```{r}
+DataTot= na.omit(DataTot)
+```
+
+```{r}
+colnames(DataTot) = c("PAÍS","CÓDIGOS PAÍS","Health_EXP","ACCES_BAS_AGUA","ANEMIA")
+```
+
+```{r}
+library(tidyverse)
+library(boot)
+library(car)
+library(ggplot2)
+```
+```{r}
+str(DataTot)
+```
+
+## Generamos una regresión
+
+
+```{r}
+library(stargazer)
+```
+
+```{r}
+modelo1=formula(ANEMIA~ACCES_BAS_AGUA+Health_EXP)
+```
+
+Nuestra hipótesis viene a ser que el índice de Anemia infantil ha sido afectado por el acceso básico a servicios de sanamiento de agua, , controlando por el gasto público en salúd
+
+```{r}
+library(stargazer)
+reg1=lm(modelo1,data=DataTot)
+```
+```{r}
+summary(reg1)
+```
+## Ponemos la regresión en stargazer
+
+```{r}
+reg1=lm(modelo1,data=DataTot)
+stargazer(reg1, type = "text")
+
+```
+Vemos que la regresión nos indica que ambas variables independientes tienen efectos significativos en la variable dependiente, siendo estos efectos inversos, ya que los coeficientes son negativos. 
+
+Realizando la prueba anova
+```{r}
+anova(reg1)
+str(anova)
+```
+
+La prueba anova indica significancia en ambas variables
+
+## Realizamos el Análisis de Conglomerados
+
+### Observamos la distribución de las datas
+
+```{r}
+VARIND=DataTot[,c(3:4)]
+row.names(VARIND)=DataTot$PAÍS
+```
+
+```{r}
+boxplot(VARIND,horizontal=T,las=2,cex.axis=0.3)
+
+```
+```{r}
+boxplot(log(VARIND),horizontal=T,las=2,cex.axis=0.3)
+
+```
+```{r}
+boxplot(scale(VARIND),horizontal=T,las=2,cex.axis=0.3)
+
+```
+
+```{r}
+library(cluster)
+library(fpc)
+library(factoextra)
+```
+
+### Analizamos el número ideal de clusters para las variables
+
+```{r}
+VARIND = (VARIND)
+set.seed(123)
+```
+```{r}
+g.dist = daisy(VARIND, metric="gower")
+```
+
+```{r}
+fviz_nbclust(VARIND, pam,diss=g.dist,method = "gap_stat",k.max = 10,verbose = F)
+
+```
+```{r}
+fviz_nbclust(VARIND, hcut,diss=g.dist,method = "gap_stat",k.max = 10,verbose = F,hc_func = "agnes")
+
+```
+
+```{r}
+fviz_nbclust(VARIND, hcut,diss=g.dist,method = "gap_stat",k.max = 10,verbose = F,hc_func = "diana")
+
+```
+
+```{r}
+set.seed(123)
+res.pam=pam(g.dist,k = 3,cluster.only = F)
+VARIND$pam=res.pam$cluster
+```
+
+```{r}
+res.agnes <- hcut(g.dist, k = 3,hc_func='agnes')
+VARIND$agnes=res.agnes$cluster
+res.diana <- hcut(g.dist, k = 2,hc_func='diana')
+VARIND$diana=res.diana$cluster
+
+```
+
+#### Analizamos la silueta de los clusters para ver la más adecuada
+
+```{r}
+fviz_silhouette(res.pam)
+```
+```{r}
+fviz_silhouette(res.agnes)
+
+```
+```{r}
+fviz_silhouette(res.diana)
+```
+#### Seleccionamos la silueta de clusters en "diana" (metodo jerarquico divisivo), pues todos sus valores están por encima de la línea del 0.00
+
+Observamos los clusters
+
+```{r}
+aggregate(data=VARIND,.~diana,FUN=mean)
+
+```
+```{r}
+VARIND$diana = factor(VARIND$diana, 
+                    levels = c(1:2), 
+                    labels = c("Bajo","Alto"))
+```
+
+### Realizamos el dendograma
+
+
+```{r}
+fviz_dend(res.diana, cex = 0.4, horiz = T)
+
+```
+```{r}
+VARIND_DIANA= VARIND[,-c(3:4)]
+```
+
+## GRAFICAMOS
+
+```{r}
+proyeccion = cmdscale(g.dist, k=2
+                      ,add = T) 
+VARIND$dim1 = proyeccion$points[,1]
+VARIND$dim2 = proyeccion$points[,2]
+base= ggplot(VARIND,aes(x=dim1, y=dim2,label=row.names(VARIND))) 
+base + geom_text(size=2, aes(color=as.factor(diana)))  + labs(title = "DIANA") 
+```
+
+
+
+
+
+
+
+
+
+
+
