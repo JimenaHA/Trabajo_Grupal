@@ -5,6 +5,17 @@ date: '2022-06-09'
 nombre: 'Jimena Andrea Herrera Araujo'
 
 ---
+## Introducción
+
+
+La anemia infantil es una problemática globalizada que, a largo plazo, puede causar lesiones en organos vitales. Esta situación es increiblemente preocupante, más aún cuando se trata de anemia en niños. En este sentido, he escogido dos variables que, de acuerdo a la teoría, son factores contribuyentes a la propagación de la anemia, la primera, el acceso a servicios básicos de agua, y por lo tanto agua potable, y la segunda, el gasto público gubernamental en salúd. Evaluaré estas variables a nivel de países, en función de su relación con la propagación de la anemia infantil.
+
+## Objetivos
+
+Identificar factores principales involucrados en la propagación de la anemia
+
+Demostrar el rol guvernamental en el desarrollo de la enemia infantil
+
 ## Variables escogidas
 
 **Variables independientes:**
@@ -18,13 +29,12 @@ Gasto en salud pública
 Tasa de anemia infantil
 
 
-## Justificación de elección de variables
-
-
-La anemia es una problemática globalizada que, a largo plazo, puede causar lesiones en organis vitales. Esta situación es increiblemente preocupante, más aún cuando se trata de anemia en niños. En este sentido, he escogido dos variables que, en teoría, son factores contribuyentes a la propagación de la anemia, la primera, el acceso a servicios básicos de agua, y por lo tanto agua potable, y la segunda, el gasto público guvernamental en salúd, y evaluaré estas variables a nivel de países, en función de su relación con la propagación de la anemia
+## Sobre la elección de variables
+ 
+La variable dependiente elegida es la tasa de anemia infantil. Esta variable es considerada relevante ya que, de acuerdo a un estudio que relaciona a la mortalidad infantil con la tasa de anemia, "~1.8 million deaths in children aged 28 days to five years could be avoided each year by increasing Hb in these children by 1 g/dL."(Scott, et al, 2014) Esto implica que una cantidad bastante relevante de muertes infantiles son causadas por la anemia. En este sentido, considero especialmente relevante análizar algunos factores que podrían contribuir a la problemática de la prevalencia de la anemia infantil. En este sentido, una de las variables independientes seleccionadas es el acceso básico a servicios de saneamiento de agua, y, por tanto acceso a agua potable. Esto, debido a que diversas fuentes confirman que "El abastecimiento de agua potable en casa es un factor asociado al diagnóstico de Anemia en niños y niñas de 6 a 35 meses de edad en Perú durante el periodo del 2019"(Manuel Guerrero, 2021). En este sentido, esta es una relación ya establecida en el Perú, y resulta relevante estudiar si dicha relación se reproduce también a nivel global. La segunda variable independiente seleccionada es el gasto estatal en el sector salud. Según un estudio realizado por la revista Health affairs: "Communities with larger increases in public health spending experienced larger reductions in mortality from leading preventable causes of death over a thirteen-year period. This relationship was consistent across several different mortality measures, and it persisted after accounting for differences in demographic and socioeconomic characteristics, medical resources, and unobserved community characteristics that jointly influence spending and health."(2011, Mays, G. P., & Smith, S. A. 30(8)) Esto implicaría que la inversión en salúd pública tiene un efecto claro en la reducción de mortalidades prevenibles a causas de enfermedades. Siendo la anemia una enfermedad que produce mortalidades prevenibles, es entonces relevante también, observar si dichas relación se manifiesta a nivel global, dado que, de ser así, llegaría incluso a ser rudimentariamente concluible que la anemia y sus consecuencias puede ser reducida otorgándo una mayor inversión en salúd pública.
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ```{r}
@@ -37,9 +47,12 @@ Importamos y limpiamos las bases de datos de las variables
 
 #### Data de gasto público en salúd
 
-```{r}
-Health_EXP <- read_csv("~/PUCP/2022-1/Estadística 2/TRABAJO GRUPAL/baeadff4-2702-47f0-80eb-bbebdcb9ffb1_Data.csv")
-View(Health_EXP)
+```{r,message=FALSE}
+library(rio)
+Health_EXP=read.csv("https://raw.githubusercontent.com/JimenaHA/Trabajo_Grupal/main/Gasto_Salud.csv")
+
+
+
 ```
 
 ```{r}
@@ -58,8 +71,8 @@ Health_EXP$NUM=as.numeric(Health_EXP$NUM)
 #### Data de acceso a Servicios básicos de sanidad de agua
 
 ```{r}
-PER_SERV_BAS <- read_csv("~/PUCP/2022-1/Estadística 2/TRABAJO GRUPAL/b3fd7bbd-0eb4-42e6-9291-30f89fba588f_Data.csv")
-View(PER_SERV_BAS)
+PER_SERV_BAS <- read.csv("https://raw.githubusercontent.com/JimenaHA/Trabajo_Grupal/main/AccesAgua_Data.csv")
+
 
 ```
 
@@ -79,8 +92,8 @@ PER_SERV_BAS$NUM=as.numeric(PER_SERV_BAS$NUM)
 #### Data de índice de Anemia infantil
 
 ```{r}
-ANEM <- read_csv("~/PUCP/2022-1/Estadística 2/TRABAJO GRUPAL/76e55a3b-7aca-4ccf-acf6-2e33b7096dad_Data.csv")
-View(ANEM)
+ANEM = read.csv("https://raw.githubusercontent.com/JimenaHA/Trabajo_Grupal/main/Data_anemia.csv")
+
 ```
 ```{r}
 ANEM=ANEM[-c(2,3,10,40,43,63:66,75:79,83,101,102,106,108:111,132:135,137,144:146,160:163,180,184,185,187,188,198,199,217,221,222,230:232,255,263,267:271),-c(1:2)]
@@ -141,9 +154,9 @@ summary(reg1)
 ```
 ## Ponemos la regresión en stargazer
 
-```{r}
+```{r,results='asis'}
 reg1=lm(modelo1,data=DataTot)
-stargazer(reg1, type = "text")
+stargazer(reg1, type = "html")
 
 ```
 Vemos que la regresión nos indica que ambas variables independientes tienen efectos significativos en la variable dependiente, siendo estos efectos inversos, ya que los coeficientes son negativos. 
@@ -159,10 +172,54 @@ La prueba anova indica significancia en ambas variables
 ## Realizamos el Análisis de Conglomerados
 
 ### Observamos la distribución de las datas
+```{r echo=FALSE}
+Datadic=read.csv("https://raw.githubusercontent.com/robbchavez/TRABAJO-FINAL-EST2/main/TASA%20DE%20MORTALIDAD%202017.csv")
+```
+```{r echo=FALSE}
+Datadic=Datadic[-c(2,3,10,40,43,63:66,75:79,83,101,102,106,108:111,132:135,137,144:146,160:163,180,184,185,187,188,198,199,217,221,222,230:232,255,263,267:271),-c(1:2)]
+Datadic[Datadic ==  ".." ] = NA
+colnames(Datadic) = c("PAÍS","CÓDIGOS PAÍS","MORTAND")
+Datadic$MORTAND=as.numeric(Datadic$MORTAND)
+```
+```{r echo=FALSE}
+DataTot=merge(DataTot,Datadic,by=c("PAÍS","CÓDIGOS PAÍS"))
+```
+```{r}
+Datadic2=read.csv("https://raw.githubusercontent.com/GianfrancoZolla37/TrabajoFinal/main/AccesoTecnolog%C3%ADaLimpia.csv")
+```
+
 
 ```{r}
-VARIND=DataTot[,c(3:4)]
+Datadic2=Datadic2[-c(2,3,10,40,43,63:66,75:79,83,101,102,106,108:111,132:135,137,144:146,160:163,180,184,185,187,188,198,199,217,221,222,230:232,255,263,267:271),-c(3:4)]
+Datadic2[Datadic2 ==  ".." ] = NA
+colnames(Datadic2) = c("PAÍS","CÓDIGOS PAÍS","TECLIMP")
+Datadic2$TECLIMP=as.numeric(Datadic2$TECLIM)
+```
+```{r}
+DataTot=merge(DataTot,Datadic2,by=c("PAÍS","CÓDIGOS PAÍS"))
+```
+
+```{r}
+Datadic3=read.csv("https://raw.githubusercontent.com/robbchavez/TRABAJO-FINAL-EST2/main/PREVALENCIA%20DE%20DESNUTRICION%202017.csv")
+```
+
+```{r}
+Datadic3=Datadic3[-c(218:271),-c(3:4)]
+Datadic3[Datadic3 ==  ".." ] = NA
+colnames(Datadic3) = c("PAÍS","CÓDIGOS PAÍS","DESNUT")
+Datadic3$DESNUT=as.numeric(Datadic3$DESNUT)
+```
+```{r}
+DataTot=merge(DataTot,Datadic3,by=c("PAÍS","CÓDIGOS PAÍS"))
+```
+
+
+```{r}
+VARIND=DataTot[,c(3:4,6:8)]
 row.names(VARIND)=DataTot$PAÍS
+```
+```{r}
+VARIND=na.omit(VARIND)
 ```
 
 ```{r}
@@ -187,7 +244,7 @@ library(factoextra)
 ### Analizamos el número ideal de clusters para las variables
 
 ```{r}
-VARIND = (VARIND)
+VARIND = VARIND
 set.seed(123)
 ```
 ```{r}
@@ -234,14 +291,9 @@ fviz_silhouette(res.agnes)
 ```{r}
 fviz_silhouette(res.diana)
 ```
-#### Seleccionamos la silueta de clusters en "diana" (metodo jerarquico divisivo), pues todos sus valores están por encima de la línea del 0.00
+#### Seleccionamos la silueta de clusters en "diana" (metodo jerarquico divisivo), pues la mayor parte sus valores están por encima de la línea del 0.00
 
-Observamos los clusters
 
-```{r}
-aggregate(data=VARIND,.~diana,FUN=mean)
-
-```
 ```{r}
 VARIND$diana = factor(VARIND$diana, 
                     levels = c(1:2), 
@@ -269,11 +321,68 @@ VARIND$dim2 = proyeccion$points[,2]
 base= ggplot(VARIND,aes(x=dim1, y=dim2,label=row.names(VARIND))) 
 base + geom_text(size=2, aes(color=as.factor(diana)))  + labs(title = "DIANA") 
 ```
+## Realizamos el análisis factorial
+```{r}
+Varind2=VARIND[,-c(6:11)]
+```
+##### Primero, hacemos la matriz de correlación
+```{r}
+
+library(polycor)
+MatrixFact=polycor::hetcor(Varind2)$correlations
+
+```
+```{r}
+
+library(ggcorrplot)
+ggcorrplot(MatrixFact)
+
+```
+```{r}
+library(psych)
+psych::KMO(MatrixFact)
+```
+## PRUEBAS
+```{r}
+cortest.bartlett(MatrixFact,n=nrow(Varind2))$p.value>0.05
+```
+```{r}
+
+library(matrixcalc)
+
+is.singular.matrix(MatrixFact)
+```
+```{r}
+fa.parallel(Varind2 ,fm = 'ML', fa = 'fa',correct = T)
+```
 
 
+```{r}
+library(GPArotation)
+resfa <- fa(Varind2,
+            nfactors = 1,
+            cor = 'mixed',
+            rotate = "varimax",
+            fm="minres")
+print(resfa$loadings)
+```
 
+```{r}
+print(resfa$loadings,cutoff = 0.5)
+```
+```{r}
+fa.diagram(resfa)
+```
+```{r}
+sort(resfa$communality)
+```
+```{r}
+sort(resfa$complexity)
+```
 
-
+```{r}
+as.data.frame(resfa$scores)%>%head()
+```
 
 
 
